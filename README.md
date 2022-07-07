@@ -1,4 +1,4 @@
-# Learning and Soft Computing @FHwedel
+# Learning and Soft Computing @FHWedel
 **Vorlesung & Übung im Sommersemester 2022**
 In dem Repository ist folgendes enthalten:
 - Präsentationfolien
