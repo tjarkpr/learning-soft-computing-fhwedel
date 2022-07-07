@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  div(class='index-container')
+    div(class='input-container')
+      h1 Text zur Erkennung
+      p Bitte geben Sie hier einen Text ein, um diesen auf Sarkasmus zu prüfen.
+      textarea(id="input-text" name='input-text', rows="10")
+      button(id='send-button' class='send-button' onclick="evaluateText()") Auswerten
+    div(class='result-container')
+      h1(id='classification-result') Sarkasmus vs. Kein Sarkasmus
+      p(id='classification-probability') 0% Wahrscheinlichkeit
+
+  script.
+    const EvaluationURL = "#{evaluationURL}";
+
+    function evaluateText() {
+      if (!$('#send-button').hasClass('disabled-button')) {
+        startLoading();
+        let inputText = $('#input-text').val();
+        fetch(EvaluationURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({text: inputText})
+        }).then(response => response.json())
+        .then(data => {
+          if (data.status === 'ok') {
+            console.log("Analysierter Text: " + data.input);
+            stopLoading(data.result === 1 ? 'Sarkasmus' : 'Kein Sarkasmus', Math.round(data.probability * 100 * 100) / 100 + '% Wahrscheinlichkeit');
+            return;
+          }
+          stopLoading("Analysefehler", "");
+        }).catch(err => {
+          stopLoading("Kommunikationsfehler", "");
+        });
+      }
+    }
+
+    function startLoading() {
+      $('#send-button').addClass('disabled-button');
+      $('#classification-result').html('Analysiert den Text...');
+      $('#classification-probability').html('');
+    }
+
+    function stopLoading(result, probability) {
+      $('#send-button').removeClass('disabled-button');
+      $('#classification-result').html(result);
+      $('#classification-probability').html(probability);
+    }
